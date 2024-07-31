@@ -1,0 +1,10 @@
+select c.contest_id, c.hacker_id, c.name,sum(ts),sum(tas),sum(tv),sum(tuv)
+from contests c LEFT JOIN colleges clg ON c.contest_id=clg.contest_id 
+LEFT JOIN challenges ch ON clg.college_id=ch.college_id
+LEFT JOIN (select v.challenge_id,sum(v.total_views) as tv,sum(v.total_unique_views)as tuv
+     from view_stats v
+     group by v.challenge_id) as tvs ON ch.challenge_id=tvs.challenge_id
+LEFT JOIN (select s.challenge_id,sum(s.total_submissions) as ts,sum(s.total_accepted_submissions)as tas from submission_stats s
+     group by s.challenge_id) as tss ON ch.challenge_id=tss.challenge_id
+GROUP BY 1,2,3
+having sum(ts)+sum(tas)+sum(tv)+sum(tuv) > 0
